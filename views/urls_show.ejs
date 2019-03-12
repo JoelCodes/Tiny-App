@@ -11,9 +11,7 @@
 <body style="font-size:20px; padding:50px;">
     <!-- Add EJS code here -->
     <ul>
-      <% for (const shortUrl in urls) { %>
-          <li><%= shortUrl %> : <%= urls[shortUrl] %></li>
-      <% } %>
+          <li><%=shortURL %> of <%=longURL %></li>
   </ul>
   <a href='#'>Create New TinyURL</a>
 </body>
