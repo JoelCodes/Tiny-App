@@ -14,10 +14,15 @@
     </header>
     <a href='#'>Create New TinyURL</a>
     <h3>My URLs</h3>
+    <h1>hiiiiiiiithere</h1>
     <ul>
-      <% for (const shortUrl in urls) { %>
-        <li><%= shortUrl %> : <%= urls[shortUrl] %></li>
+      <% for (const shortURL in urls) { %>
+        <li><%= shortURL %> : <%= urls[shortURL] %></li>
+        <form method="POST" action="/urls/<%= shortURL %>/delete">
+          <button type="submit">delete</button>
+        </form>
       <% } %>
+      
     </ul>
   </body>
 </html>
