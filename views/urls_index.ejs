@@ -18,8 +18,8 @@
       <h5><%= shortURL %> : <%= urls[shortURL] %></h5>
       <form method="POST" action="/urls/<%= shortURL %>/delete">
         <button type="submit"> delete </button>
+        <a href= "/urls/<%= shortURL %>" >edit</a>
       </form>
-      <a href= "/urls/<%= shortURL %>" >edit</a>
       <% } %>
   </body>
 </html>
