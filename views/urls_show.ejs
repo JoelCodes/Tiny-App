@@ -13,7 +13,12 @@
       <% include ./partials/_header %>
     </header>
     <a href='#'>Create New TinyURL</a>
-    <h3>TinyURL for <%=longURL %></h3>
-    <li>localhost:8080/u/<%=shortURL %></li>
+    <h3>ShortURL: <%= shortURL %>
+    <form method="POST" action="/urls/<%= shortURL %>">
+      <input name= "updatedURL" type="text"  placeholder="Enter updated url..." value="<%= longURL %> ">
+      <button type="submit">update url</button>
+    </form>
   </body>
 </html>
+
+<!--include a form with two elements – a text input and a button. -->
