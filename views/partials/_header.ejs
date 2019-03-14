@@ -10,14 +10,14 @@
   <body style="font-size:20px; padding:50px;">
     <!-- Add EJS code here -->
     <h1>TinyApp</h1>
-    <% if(username) { %>
-      <h5> You are logged in as: <%= username %></h5>
+    <% if(user["email"]) { %>
+      <h5> You are logged in as: <%= user["email"] %></h5>
       <form method="POST" action="/logout">
         <button type="submit">logout</button>
       </form>
     <% } else { %>
       <form method="POST" action="/login">
-        <input name="username" type="text" placeholder="Enter your username...">
+        <input name="email" type="email" placeholder="Enter your username...">
         <button type="submit">sign in</button>
       </form>
       <% } %>

@@ -19,6 +19,11 @@ const users = {
     id: "userRandomId", 
     email: "user@example.com", 
     password: "purple-monkey-dinosaur"
+  },
+  "userRandom2Id": {
+    id: "userRandom2Id", 
+    email: "user@example2.com", 
+    password: "monkey-dinosaur"
   }
 };
 
@@ -46,7 +51,7 @@ app.get("/", (req, res) => {
   res.redirect("/urls");
 });
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase, username: req.cookies["username"] };
+  let templateVars = { urls: urlDatabase, user: users[req.cookies["user_id"]] };
   res.render("urls_index", templateVars);
 });
 app.post("/urls", (req, res) => {
@@ -58,14 +63,14 @@ app.post("/urls", (req, res) => {
 
 //create a new url
 app.get("/urls/new", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"] };
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: users[req.cookies["user_id"]] };
   res.render("urls_new", templateVars);
 });
 
 //create a new short url
 app.get("/urls/:shortURL", (req, res) => {
   console.log(req.params);
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"] };
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: users[req.cookies["user_id"]] };
   // console.log(templateVars);
   res.render("urls_show", templateVars);
 });
