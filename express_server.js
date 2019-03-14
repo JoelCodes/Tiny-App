@@ -16,10 +16,33 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
+//global variables
 var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+};
+
+//global functios
+function generateRandomString() {
+  var string = "";
+  var options = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  for (var i = 0; i < 5; i++)
+    string += options.charAt(Math.floor(Math.random() * options.length));
+  return string;
+}
 
 //get urls and respond to their posts
 app.get("/", (req, res) => {
@@ -74,6 +97,7 @@ app.get("/u/:shortURL", (req, res) => {
 
 //login
 app.post("/login", (req,res) => {
+  // const user = users[req.body.] *********
   res.cookie("username",req.body.username);
   // let templateVars = {urls: urlDatabase, username: req.body.username};
   res.redirect("/urls/new");
@@ -85,6 +109,18 @@ app.post("/logout", (req,res) => {
   // res.cookie("username",req.body.username);
   // let templateVars = {urls: urlDatabase, username: req.body.username};
   res.redirect("/urls/new");
+});
+
+//registration
+app.get("/register", (req, res) => {
+  let templateVars = { email: req.params.email, password: req.params.password };
+  // const user = email && password;
+  // if (user) {
+    res.render("urls_registration")
+  // }
+  // else {
+  //   res.redirect("/urls/new");
+  // }
 });
 
 //listen to the port
