@@ -98,6 +98,9 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 //login the user
+app.get("/login", (req,res) => {
+  res.render("login");
+});
 app.post("/login", (req,res) => {
   res.cookie("username",req.body.username);
   res.redirect("/urls/new");
