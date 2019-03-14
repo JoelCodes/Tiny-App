@@ -20,12 +20,13 @@ var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
 //get urls and respond to their posts
 app.get("/", (req, res) => {
   res.redirect("/urls");
 });
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase };
+  let templateVars = { urls: urlDatabase, username: req.cookies["username"] };
   res.render("urls_index", templateVars);
 });
 app.post("/urls", (req, res) => {
@@ -37,13 +38,15 @@ app.post("/urls", (req, res) => {
 
 //create a new url
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"] };
+  res.render("urls_new", templateVars);
 });
 
 //create a new short url
 app.get("/urls/:shortURL", (req, res) => {
   console.log(req.params);
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"] };
+  // console.log(templateVars);
   res.render("urls_show", templateVars);
 });
 app.post("/urls/:shortURL", (req, res) => {
@@ -68,12 +71,22 @@ app.get("/u/:shortURL", (req, res) => {
   let longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
+
 //login
 app.post("/login", (req,res) => {
   res.cookie("username",req.body.username);
-  let templateVars = {urls: urlDatabase};
-  res.render("urls_index", templateVars);
+  // let templateVars = {urls: urlDatabase, username: req.body.username};
+  res.redirect("/urls/new");
 });
+
+//logout
+app.post("/logout", (req,res) => {
+  res.clearCookie("username",req.body.username);
+  // res.cookie("username",req.body.username);
+  // let templateVars = {urls: urlDatabase, username: req.body.username};
+  res.redirect("/urls/new");
+});
+
 //listen to the port
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
