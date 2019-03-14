@@ -23,15 +23,10 @@ var urlDatabase = {
 };
 
 const users = { 
-  "userRandomID": {
-    id: "userRandomID", 
+  "userRandomId": {
+    id: "userRandomId", 
     email: "user@example.com", 
     password: "purple-monkey-dinosaur"
-  },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
-    password: "dishwasher-funk"
   }
 };
 
@@ -123,7 +118,23 @@ app.get("/register", (req, res) => {
   // }
 });
 
+app.post("/register", (req,res) => {
+// adds a new user to the users object
+  const userRandomId = generateRandomString();
+  users[userRandomId] = {id: userRandomId, email: req.body.email, password: req.body.password};
+
+  res.cookie("user_id", userRandomId);
+  res.redirect("/urls")
+  });
+
 //listen to the port
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+// If the e-mail or password are empty strings, send back a response with the 400 status code.
+
+
+
+
+// If someone tries to register with an email that is already in the users object, send back a response with the 400 status code. Checking for an email in the users object is something we'll need to do in other routes as well. Consider creating an email lookup helper function to keep your code DRY
