@@ -7,7 +7,9 @@ function generateRandomString() {
 }
 
 var express = require("express");
+var cookieParser = require('cookie-parser');
 var app = express();
+app.use(cookieParser());
 var PORT = 8080;
 const bodyParser = require("body-parser");
 
@@ -18,6 +20,7 @@ var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+//get urls and respond to their posts
 app.get("/", (req, res) => {
   res.redirect("/urls");
 });
@@ -31,9 +34,13 @@ app.post("/urls", (req, res) => {
   urlDatabase[shortURL] = req.body.longURL
   res.redirect(`/urls/${shortURL}`)
 });
+
+//create a new url
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
+
+//create a new short url
 app.get("/urls/:shortURL", (req, res) => {
   console.log(req.params);
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
@@ -44,8 +51,9 @@ app.post("/urls/:shortURL", (req, res) => {
   const updatedURL =req.body.updatedURL
   urlDatabase[req.params.shortURL] = updatedURL;
   res.redirect("/urls");
-  
 });
+
+//delete a url
 app.get("/urls/:shortURL/delete", (req, res) => {
   res.redirect("/urls")
 });
@@ -54,10 +62,19 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[toBeDeleted];
   res.redirect("/urls")
 });
+
+//redirect the user to the actual website of the short url
 app.get("/u/:shortURL", (req, res) => {
   let longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
+//login
+app.post("/login", (req,res) => {
+  res.cookie("username",req.body.username);
+  let templateVars = {urls: urlDatabase};
+  res.render("urls_index", templateVars);
+});
+//listen to the port
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
