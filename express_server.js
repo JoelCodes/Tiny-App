@@ -1,11 +1,3 @@
-function generateRandomString() {
-  var string = "";
-  var options = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  for (var i = 0; i < 5; i++)
-    string += options.charAt(Math.floor(Math.random() * options.length));
-  return string;
-}
-
 var express = require("express");
 var cookieParser = require('cookie-parser');
 var app = express();
@@ -38,6 +30,16 @@ function generateRandomString() {
     string += options.charAt(Math.floor(Math.random() * options.length));
   return string;
 }
+
+function findEmail(emailToFind) {
+
+  for (let user in users) {
+    console.log(user);
+    if (users[user]["email"] === emailToFind) {
+      return true;
+    }
+  }
+};
 
 //get urls and respond to their posts
 app.get("/", (req, res) => {
@@ -90,15 +92,13 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
-//login
+//login the user
 app.post("/login", (req,res) => {
-  // const user = users[req.body.] *********
   res.cookie("username",req.body.username);
-  // let templateVars = {urls: urlDatabase, username: req.body.username};
   res.redirect("/urls/new");
 });
 
-//logout
+//logout the user
 app.post("/logout", (req,res) => {
   res.clearCookie("username",req.body.username);
   // res.cookie("username",req.body.username);
@@ -106,9 +106,9 @@ app.post("/logout", (req,res) => {
   res.redirect("/urls/new");
 });
 
-//registration
+//register a new user
 app.get("/register", (req, res) => {
-  let templateVars = { email: req.params.email, password: req.params.password };
+  // let templateVars = { email: req.params.email, password: req.params.password };
   // const user = email && password;
   // if (user) {
     res.render("urls_registration")
@@ -119,22 +119,21 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req,res) => {
-// adds a new user to the users object
-  const userRandomId = generateRandomString();
-  users[userRandomId] = {id: userRandomId, email: req.body.email, password: req.body.password};
-
-  res.cookie("user_id", userRandomId);
-  res.redirect("/urls")
-  });
+  //checks for errors in input
+  if (req.body.email === "" || req.body.password === "" || findEmail(req.body.email)) {
+    res.status(400).send();
+    console.log("bad");
+  } else {
+    // adds a new user to the users object
+    const userRandomId = generateRandomString();
+    users[userRandomId] = {id: userRandomId, email: req.body.email, password: req.body.password};
+  
+    res.cookie("user_id", userRandomId);
+    res.redirect("/urls")
+  }
+});
 
 //listen to the port
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
-
-// If the e-mail or password are empty strings, send back a response with the 400 status code.
-
-
-
-
-// If someone tries to register with an email that is already in the users object, send back a response with the 400 status code. Checking for an email in the users object is something we'll need to do in other routes as well. Consider creating an email lookup helper function to keep your code DRY
