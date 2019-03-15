@@ -1,25 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-    <title>TinyApp</title>
-  </head>
-  <body style="font-size:20px; padding:50px;">
+
+  <div style="font-size:20px;">
     <!-- Add EJS code here -->
-    <h1>TinyApp</h1>
-    <% if(user["email"]) { %>
-      <h5> You are logged in as: <%= user["email"] %></h5>
+    <% if(user) { %>
+      <a href="http://localhost:8080/urls" >URLs</a><td>|</td>
+      <a href="http://localhost:8080/urls/new" >Create New TinyURL</a>
+      <h3> You are logged in as: <%= user["email"] %></h3>
       <form method="POST" action="/logout">
         <button type="submit">logout</button>
       </form>
     <% } else { %>
-      <form method="POST" action="/login">
-        <input name="email" type="email" placeholder="Enter your username...">
-        <button type="submit">sign in</button>
-      </form>
-      <% } %>
-  </body>
-</html>
+      <a href="/login" >Login</a><td>|</td><a href="/register" >Register</a>
+    <% } %>
+    </div>

@@ -10,15 +10,18 @@
   <body style="font-size:20px; padding:50px;">
     <!-- Add EJS code here -->
     <h1>TinyApp</h1>
-    <a href= Login> Login </a> <td>|</td> <a href= Register>Register</a>
+    <header>
+      <% include ./partials/_header %>
+    </header>
+    <!-- <a href= "/login"> Login </a> <td>|</td> <a href= "/register">Register</a> -->
     <h3>Login</h3>
-    <h5>Email:</h5>
-    <form method="POST" action="/register">
+    <form method="POST" action="/login">
+      <h5>Email:</h5>
       <input name= "email" type="email"  placeholder="Enter your email">
-    <h5>Password:</h5>
+      <h5>Password:</h5>
       <input name= "password" type="password"  placeholder="Enter your password">
       <hr style="height:0px; visibility:hidden;" />
-      <button type="subnit">Loginr</button>
+      <button type="submit">Login</button>
     </form>
   </body>
 </html>

@@ -9,10 +9,10 @@
   </head>
   <body style="font-size:20px; padding:50px;">
     <!-- Add EJS code here -->
+    <h1>TinyApp</h1>
     <header>
       <% include ./partials/_header %>
     </header>
-    <a href='#'>Create New TinyURL</a>
     <h3>My URLs</h3>
     <% for (const shortURL in urls) { %>
       <h5><%= shortURL %> : <%= urls[shortURL] %></h5>
