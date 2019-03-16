@@ -4,6 +4,7 @@ var app = express();
 app.use(cookieParser());
 var PORT = 8080;
 const bodyParser = require("body-parser");
+const bcrypt = require('bcrypt');
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
@@ -64,8 +65,6 @@ app.get("/urls", (req, res) => {
   // returns userUrlDatabase
   if (user) {
     const userUrlDatabase = urlsForUser(user.id);
-    console.log("show urlsssssss");
-    console.log(userUrlDatabase);
     let templateVars = { urls: userUrlDatabase, user: user };
     return res.render("urls_index", templateVars);
   }
@@ -76,7 +75,6 @@ app.get("/urls", (req, res) => {
 
 // create a new short url
 app.post("/urls", (req, res) => {
-  console.log(req.body);
   const shortURL = generateRandomString();
   const user = users[req.cookies["user_id"]];
   urlDatabase[shortURL]= {"longURL":req.body.longURL,"userID": user.id }
@@ -97,15 +95,16 @@ app.get("/urls/new", (req, res) => {
 
 // update a short url
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"], user: users[req.cookies["user_id"]] };
+  const shortURL = req.params.shortURL;
+  let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL]["longURL"], user: users[req.cookies["user_id"]] };
   return res.render("urls_show", templateVars);
 });
 app.post("/urls/:shortURL", (req, res) => {
-  const updatedURL =req.body.updatedURL
-  console.log("updating url" , updatedURL);
+  const shortURL = req.params.shortURL;
+  const updatedURL =req.body.updatedURL;
   const userID = users[req.cookies["user_id"]]["id"];
-  if (urlDatabase[req.params.shortURL]["userID"] === userID ) {
-    urlDatabase[req.params.shortURL]["longURL"] = updatedURL;
+  if (urlDatabase[shortURL]["userID"] === userID ) {
+    urlDatabase[shortURL]["longURL"] = updatedURL;
   }
   console.log("updateUrl")
   console.log(urlDatabase);
@@ -117,9 +116,10 @@ app.get("/urls/:shortURL/delete", (req, res) => {
   res.redirect("/urls")
 });
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const toBeDeleted = req.params.shortURL;
+  const shortURL = req.params.shortURL
+  const toBeDeleted = shortURL;
   const user = users[req.cookies["user_id"]];
-  if (urlDatabase[req.params.shortURL]["userID"] === user.id ) {
+  if (urlDatabase[shortURL]["userID"] === user.id ) {
     delete urlDatabase[toBeDeleted];
   }
   return res.redirect("/urls")
@@ -127,8 +127,9 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 //redirect the user to the actual website of the short url
 app.get("/u/:shortURL", (req, res) => {
-  if (urlDatabase[req.params.shortURL]) {
-    let longURL = urlDatabase[req.params.shortURL]["longURL"];
+  const shortURL = req.params.shortURL
+  if (urlDatabase[shortURL]) {
+    let longURL = urlDatabase[shortURL]["longURL"];
     return res.redirect(longURL);
   } else {
     return res.status(404).send();
@@ -142,12 +143,14 @@ app.get("/login", (req,res) => {
   return res.render("login", templateVars);
 });
 app.post("/login", (req,res) => {
-  const user = findEmail(req.body.email);
-  if (user === undefined || user.password !== req.body.password) {
+  const email = req.body.email;
+  const password = req.body.password;
+  const user = findEmail(email);
+  if (user === undefined || !bcrypt.compareSync(password, user["password"])) {
     return res.status(403).send();
   } else {
     res.cookie("user_id", user["id"])
-    res.cookie("email",req.body.email);
+    res.cookie("email",email);
     res.redirect("/urls");
   }
 });
@@ -171,9 +174,10 @@ app.post("/register", (req,res) => {
   } else {
     // adds a new user to the users object
     const userRandomId = generateRandomString();
-    users[userRandomId] = {id: userRandomId, email: req.body.email, password: req.body.password};
-    //urlDatabase[generateRandomString()]={"longURL": "", "userID": userRandomId};
-    console.log(urlDatabase),
+    const email = req.body.email;
+    const password = req.body.password;
+    const hashedPassword = bcrypt.hashSync(password, 10);
+    users[userRandomId] = {id: userRandomId, email: email, password: hashedPassword};
     res.cookie("user_id", userRandomId);
     res.cookie("user", users[userRandomId]);
     res.redirect("/urls")
