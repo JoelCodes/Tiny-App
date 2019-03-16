@@ -15,7 +15,7 @@
     </header>
     <h3>My URLs</h3>
     <% for (const shortURL in urls) { %>
-      <h5><%= shortURL %> : <%= urls[shortURL] %></h5>
+      <h5><%= shortURL %> : <%= urls[shortURL]['longURL'] %></h5>
       <form method="POST" action="/urls/<%= shortURL %>/delete">
         <button type="submit"> delete </button>
         <a href= "/urls/<%= shortURL %>" >edit</a>

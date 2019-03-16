@@ -1,7 +1,7 @@
 
   <div style="font-size:20px;">
     <!-- Add EJS code here -->
-    <% if(user) { %>
+    <% if(locals.user) { %>
       <a href="http://localhost:8080/urls" >URLs</a><td>|</td>
       <a href="http://localhost:8080/urls/new" >Create New TinyURL</a>
       <h3> You are logged in as: <%= user["email"] %></h3>
