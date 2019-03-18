@@ -1,5 +1,5 @@
 # Tiny-App
-*Tiny app is a full stack web application built with node.js and expres. It assists users in shortening long urls for an easier way of sharing them.*
+*Tiny app is a full stack web application built with node.js and express. It assists users in shortening long urls for an easier way of sharing them.*
 
 # Screenshot
 !["Screenshot of the urls page"](https://github.com/BanaBatshon/Tiny-App/blob/master/docs/urls-page.png)
