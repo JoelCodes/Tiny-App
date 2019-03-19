@@ -98,12 +98,19 @@ app.get("/urls/new", (req, res) => {
 
 // updates the short url
 app.get("/urls/:shortURL", (req, res) => {
-  if (users[req.session["user_id"]]) {
   const shortURL = req.params.shortURL;
+  if (users[req.session["user_id"]]) {
+    if (!urlDatabase[shortURL]) {
+      return res.render("error_viewing", {
+        errorMessage: 'Url not found'
+      });
+    }
   let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL]["longURL"], user: users[req.session["user_id"]] };
   return res.render("urls_show", templateVars);
   }
-  return res.render("error_viewing");
+  return res.render("error_viewing", {
+    errorMessage: 'Must be logged in'
+  });
 });
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
