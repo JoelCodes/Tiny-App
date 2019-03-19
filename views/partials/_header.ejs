@@ -1,6 +1,7 @@
 
   <div style="font-size:20px;">
-  <link rel="stylesheet" type="text/css" href="styles/login.css">
+  <link rel="stylesheet" type="text/css" href="../styles/login.css">
+
     <!-- Add EJS code here -->
     <% if(user) { %>
       <a href="http://localhost:8080/urls" >URLs</a><td>|</td>
@@ -10,6 +11,6 @@
         <button type="submit">logout</button>
       </form>
     <% } else { %>
-      <a href="/login" >Login</a><td>|</td><a href="/register" >Register</a>
+        <a href="/login" >Login</a><t>|</t><a href="/register" >Register</a>
     <% } %>
     </div>

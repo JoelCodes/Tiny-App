@@ -1,17 +1,82 @@
+
+
 body {
-  background-color: rgb(41, 41, 41);
+  background-color: rgb(34, 34, 34);
+  font-family: monospace;
 }
 
 h1 {
-  color: #1bf9f2;
-  margin-left: 0px;
+  color: rgba(3, 224, 217, 0.931);
+  margin-left: -4px;
 }
 
-h3, h5 {
-  color: #A28E8B;
-  margin-left: 0px;
+h3 {
+  color: rgb(218, 42, 94);
+  margin-top: 40px;
+  margin-bottom: 10px;
+}
+
+h5 {
+  color: rgb(218, 42, 94);
+  margin-top: 5px;
 }
 
 a {
-  color: rgb(235, 230, 154);
+  color: rgb(252, 244, 137);
+  }
+
+a:hover {
+  color: rgba(3, 224, 217, 0.931);
+}
+
+t {
+  color: rgb(252, 244, 137);
+  margin: 5px;
+  padding-top: 90px;
+}
+
+form>input {
+background-color: lightgray;
+border-radius: 25px;
+padding: 10px;
+width: 100%;
+margin-bottom: 10px;
+}
+
+button {
+  background-color: rgb(252, 244, 137);
+  color: rgb(41, 41, 41);
+  border-radius: 20px;
+  width: 200px;
+  margin-left: 5px;
+}
+
+.danger {
+  background-color: lightgray;
+  padding: 15px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border-radius: 30px;
+  margin-left: -5px;
+  width: 700px;
+  color: rgb(218, 42, 94);
+  font-weight: bold;
+  font-size: 25px;
+}
+
+.form-control {
+  background-color: lightgrey;
+  border-radius: 25px;
+}
+
+label {
+  color: rgb(218, 42, 94);
+  font-size: 25px;
+}
+button.btn.btn-primary {
+  background-color: rgb(252, 244, 137);
+  color: rgb(41, 41, 41);
+  border-radius: 20px;
+  width: 200px;
+  font-size: 20px;
 }
