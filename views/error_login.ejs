@@ -10,16 +10,8 @@
   <body style="font-size:20px; padding:50px;">
     <!-- Add EJS code here -->
     <h1>TinyApp</h1>
-    <header>
-      <% include ./partials/_header %>
-    </header>
-    <h3>My URLs</h3>
-    <% for (const shortURL in urls) { %>
-      <h5><a href=http://localhost:8080/u/<%=shortURL%>><%=shortURL%></a> : <%= urls[shortURL]['longURL'] %></h5>
-      <form method="POST" action="/urls/<%= shortURL %>/delete">
-        <button type="submit"> delete </button>
-        <a href= "/urls/<%= shortURL %>" >edit</a>
-      </form>
-      <% } %>
+    <div class="alert alert-danger" role="alert">
+      Please enter a valid email and password!
+    </div>
+    <h5> <a href="http://localhost:8080/login">Go to login page</a></h5>
   </body>
-</html>

@@ -13,6 +13,8 @@ app.use(cookieSession({
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
+app.use(express.static('public'));
+
 //global variables
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
@@ -33,8 +35,8 @@ const users = {
 };
 
 function generateRandomString() {
-  var string = "";
-  var options = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let string = "";
+  const options = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   for (var i = 0; i < 5; i++)
     string += options.charAt(Math.floor(Math.random() * options.length));
   return string;
@@ -42,7 +44,7 @@ function generateRandomString() {
 
 // returns the user object after the email is searched for
 function findEmail(emailToFind) {
-  for (let user in users) {
+  for (const user in users) {
     if (users[user]["email"] === emailToFind) {
       return users[user];
     }
@@ -80,13 +82,13 @@ app.get("/urls", (req, res) => {
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   const user = users[req.session["user_id"]];
-  urlDatabase[shortURL]= {"longURL":req.body.longURL,"userID": user.id }
+  urlDatabase[shortURL]= {"longURL":req.body.longURL,"userID": user.id}
   return res.redirect(`/urls/${shortURL}`)
 });
 
 // creates a new url
 app.get("/urls/new", (req, res) => {
-  let templateVars = { user: users[req.session["user_id"]] };
+  const templateVars = { user: users[req.session["user_id"]] };
   if (templateVars["user"]) {
     res.render("urls_new", templateVars);
   } else {
@@ -96,9 +98,12 @@ app.get("/urls/new", (req, res) => {
 
 // updates the short url
 app.get("/urls/:shortURL", (req, res) => {
+  if (users[req.session["user_id"]]) {
   const shortURL = req.params.shortURL;
   let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL]["longURL"], user: users[req.session["user_id"]] };
   return res.render("urls_show", templateVars);
+  }
+  return res.render("error_viewing");
 });
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
@@ -117,7 +122,7 @@ app.get("/urls/:shortURL/delete", (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL
   const user = users[req.session["user_id"]];
-  if (urlDatabase[shortURL]["userID"] === user.id ) {
+  if (urlDatabase[shortURL]["userID"] === user.id) {
     delete urlDatabase[shortURL];
   }
   return res.redirect("/urls")
@@ -127,16 +132,15 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL
   if (urlDatabase[shortURL]) {
-    let longURL = urlDatabase[shortURL]["longURL"];
+    const longURL = urlDatabase[shortURL]["longURL"];
     return res.redirect(longURL);
-  } else {
-    return res.status(404).send();
   }
+    return res.render("error_viewing");
 });
 
 // logs the user in and redirects them to the homepage
 app.get("/login", (req,res) => {
-  let templateVars = {user: ""}
+  const templateVars = {user: ""}
   return res.render("login", templateVars);
 });
 app.post("/login", (req,res) => {
@@ -144,7 +148,7 @@ app.post("/login", (req,res) => {
   const password = req.body.password;
   const user = findEmail(email);
   if (user === undefined || !bcrypt.compareSync(password, user["password"])) {
-    return res.status(403).send();
+    return res.render("error_login");
   } else {
     req.session["user_id"] = user["id"];
     res.redirect("/urls");
@@ -159,13 +163,13 @@ app.post("/logout", (req,res) => {
 
 // registers a new user
 app.get("/register", (req, res) => {
-  let templateVars = {user: ""}
+  const templateVars = {user: ""}
     return res.render("urls_registration", templateVars)
 });
 app.post("/register", (req,res) => {
   //checks for errors in entered password and email
   if (req.body.email === "" || req.body.password === "" || findEmail(req.body.email)) {
-    return res.status(400).send();
+    return res.render("error_registration");
   } else {
     // adds a new user to the users object and saves their id in a session
     const userRandomId = generateRandomString();
