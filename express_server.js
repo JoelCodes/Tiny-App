@@ -1,195 +1,158 @@
-const express = require("express");
+const express = require('express');
 const cookieSession = require('cookie-session');
-const bodyParser = require("body-parser");
+const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
+
 const app = express();
+
+const {
+  findEmail,
+  urlsForUser,
+  getUserById,
+  getUrlByShortUrl,
+  createUrl,
+  updateUrl,
+  deleteUrl,
+  createUser,
+} = require('./data.js');
 
 const PORT = 8080;
 
 app.use(cookieSession({
   name: 'session',
-  keys: ["key1", "key2"]
+  keys: ['key1', 'key2'],
 }));
-app.use(bodyParser.urlencoded({extended: true}));
-app.set("view engine", "ejs");
+app.use(bodyParser.urlencoded({ extended: true }));
+app.set('view engine', 'ejs');
 
 app.use(express.static('public'));
 
-//global variables
-const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
-  i3BoGr: { longURL: "https://www.google.ca", userID: "users1" }
-};
-
-const users = { 
-  "user1": {
-    id: "user1", 
-    email: "a@a",
-    password: bcrypt.hashSync("a", 10)
-  },
-  "user2": {
-    id: "user2", 
-    email: "b@b", 
-    password: bcrypt.hashSync("b", 10)
-  }
-};
-
-function generateRandomString() {
-  let string = "";
-  const options = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  for (var i = 0; i < 5; i++)
-    string += options.charAt(Math.floor(Math.random() * options.length));
-  return string;
-};
-
-// returns the user object after the email is searched for
-function findEmail(emailToFind) {
-  for (const user in users) {
-    if (users[user]["email"] === emailToFind) {
-      return users[user];
-    }
-  }
-};
-
-// returns the urls of the user
-function urlsForUser (id) {
-  const userUrlDatabase = {};
-  for (url in urlDatabase) {
-    if (urlDatabase[url]["userID"] === id) {
-      userUrlDatabase[url] = {"longURL": urlDatabase[url]["longURL"], "userID": id}
-    }
-  }
-return userUrlDatabase;
-};
 
 // displayes the page of the shortened urls of the user
-app.get("/", (req, res) => {
-  return res.redirect("/urls");
-});
-app.get("/urls", (req, res) => {
-  const user = users[req.session["user_id"]];
+app.get('/', (req, res) => res.redirect('/urls'));
+app.get('/urls', (req, res) => {
+  const user = getUserById(req.session.user_id);
   if (user) {
     const userUrlDatabase = urlsForUser(user.id);
-    let templateVars = { urls: userUrlDatabase, user: user };
-    return res.render("urls_index", templateVars);
+    const templateVars = { urls: userUrlDatabase, user };
+    return res.render('urls_index', templateVars);
   }
-  else {
-    return res.redirect("/login");
-  }
+
+  return res.redirect('/login');
 });
 
 // creates a new short url
-app.post("/urls", (req, res) => {
-  const shortURL = generateRandomString();
-  const user = users[req.session["user_id"]];
-  urlDatabase[shortURL]= {"longURL":req.body.longURL,"userID": user.id}
-  return res.redirect(`/urls/${shortURL}`)
+app.post('/urls', (req, res) => {
+  const user = getUserById(req.session.user_id);
+  const { shortURL } = createUrl(req.body.longURL, user.id);
+  return res.redirect(`/urls/${shortURL}`);
 });
 
 // creates a new url
-app.get("/urls/new", (req, res) => {
-  const templateVars = { user: users[req.session["user_id"]] };
-  if (templateVars["user"]) {
-    res.render("urls_new", templateVars);
+app.get('/urls/new', (req, res) => {
+  const templateVars = { user: getUserById(req.session.user_id) };
+  if (templateVars.user) {
+    res.render('urls_new', templateVars);
   } else {
-    return res.redirect("/login")
+    res.redirect('/login');
   }
 });
 
 // updates the short url
-app.get("/urls/:shortURL", (req, res) => {
-  const shortURL = req.params.shortURL;
-  if (users[req.session["user_id"]]) {
-    if (!urlDatabase[shortURL]) {
-      return res.render("error_viewing", {
-        errorMessage: 'Url not found'
+app.get('/urls/:shortURL', (req, res) => {
+  const { shortURL } = req.params;
+  const user = getUserById(req.session.user_id);
+  const url = getUrlByShortUrl(shortURL);
+  if (user) {
+    if (!url) {
+      return res.render('error_viewing', {
+        errorMessage: 'Url not found',
       });
     }
-  let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL]["longURL"], user: users[req.session["user_id"]] };
-  return res.render("urls_show", templateVars);
+    const templateVars = { shortURL, longURL: url.longURL, user };
+    return res.render('urls_show', templateVars);
   }
-  return res.render("error_viewing", {
-    errorMessage: 'Must be logged in'
+  return res.render('error_viewing', {
+    errorMessage: 'Must be logged in',
   });
 });
-app.post("/urls/:shortURL", (req, res) => {
-  const shortURL = req.params.shortURL;
-  const updatedURL =req.body.updatedURL;
-  const userID = users[req.session["user_id"]]["id"];
-  if (urlDatabase[shortURL]["userID"] === userID ) {
-    urlDatabase[shortURL]["longURL"] = updatedURL;
+app.post('/urls/:shortURL', (req, res) => {
+  const { shortURL } = req.params;
+  const { updatedURL } = req.body;
+  const user = getUserById(req.session.user_id);
+  const url = getUrlByShortUrl(shortURL);
+
+  if (url.userID === user.id) {
+    updateUrl(shortURL, updatedURL);
   }
-  return res.redirect("/urls");
+  return res.redirect('/urls');
 });
 
 // deletes the url and redirects to the main page displaying the short urls
-app.get("/urls/:shortURL/delete", (req, res) => {
-  res.redirect("/urls")
+app.get('/urls/:shortURL/delete', (req, res) => {
+  res.redirect('/urls');
 });
-app.post("/urls/:shortURL/delete", (req, res) => {
-  const shortURL = req.params.shortURL
-  const user = users[req.session["user_id"]];
-  if (urlDatabase[shortURL]["userID"] === user.id) {
-    delete urlDatabase[shortURL];
+app.post('/urls/:shortURL/delete', (req, res) => {
+  const { shortURL } = req.params;
+  const user = getUserById(req.session.user_id);
+  const url = getUrlByShortUrl(shortURL);
+  if (url && url.userID === user.id) {
+    deleteUrl(shortURL);
   }
-  return res.redirect("/urls")
+  return res.redirect('/urls');
 });
 
 // redirects the user to the actual website of the short url
-app.get("/u/:shortURL", (req, res) => {
-  const shortURL = req.params.shortURL
-  if (urlDatabase[shortURL]) {
-    const longURL = urlDatabase[shortURL]["longURL"];
+app.get('/u/:shortURL', (req, res) => {
+  const { shortURL } = req.params;
+  const url = getUrlByShortUrl(shortURL);
+  if (url) {
+    const { longURL } = url;
     return res.redirect(longURL);
   }
-    return res.render("error_viewing");
+  return res.render('error_viewing');
 });
 
 // logs the user in and redirects them to the homepage
-app.get("/login", (req,res) => {
-  const templateVars = {user: ""}
-  return res.render("login", templateVars);
+app.get('/login', (req, res) => {
+  const templateVars = { user: '' };
+  return res.render('login', templateVars);
 });
-app.post("/login", (req,res) => {
-  const email = req.body.email;
-  const password = req.body.password;
+app.post('/login', (req, res) => {
+  const { email } = req.body;
+  const { password } = req.body;
   const user = findEmail(email);
-  if (user === undefined || !bcrypt.compareSync(password, user["password"])) {
-    return res.render("error_login");
-  } else {
-    req.session["user_id"] = user["id"];
-    res.redirect("/urls");
+  if (user === undefined || !bcrypt.compareSync(password, user.password)) {
+    return res.render('error_login');
   }
+  req.session.user_id = user.id;
+  return res.redirect('/urls');
 });
 
 // logs the user out
-app.post("/logout", (req,res) => {
+app.post('/logout', (req, res) => {
   req.session = null;
-  return res.redirect("/urls/new");
+  return res.redirect('/urls/new');
 });
 
 // registers a new user
-app.get("/register", (req, res) => {
-  const templateVars = {user: ""}
-    return res.render("urls_registration", templateVars)
-});
-app.post("/register", (req,res) => {
-  //checks for errors in entered password and email
-  if (req.body.email === "" || req.body.password === "" || findEmail(req.body.email)) {
-    return res.render("error_registration");
-  } else {
-    // adds a new user to the users object and saves their id in a session
-    const userRandomId = generateRandomString();
-    const email = req.body.email;
-    const password = req.body.password;
-    const hashedPassword = bcrypt.hashSync(password, 10);
-    users[userRandomId] = {id: userRandomId, email: email, password: hashedPassword};
-    req.session.user_id = userRandomId;
-    res.redirect("/urls")
-  }
+app.get('/register', (req, res) => {
+  const templateVars = { user: '' };
+  return res.render('urls_registration', templateVars);
 });
 
-//listen to the port
+app.post('/register', (req, res) => {
+  // checks for errors in entered password and email
+  if (req.body.email === '' || req.body.password === '' || findEmail(req.body.email)) {
+    return res.render('error_registration');
+  }
+  // adds a new user to the users object and saves their id in a session
+  const newUser = createUser(req.body.email, req.body.password);
+  req.session.user_id = newUser.id;
+  return res.redirect('/urls');
+});
+
+// listen to the port
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
